@@ -6,6 +6,7 @@ python3 -c "import torch; print(torch.__version__)"
 src=$1
 tgt=$2
 ARCH=lm_transformer_lm
+#ARCH=transformer
 MODELSIZE=transformer_big
 DATAPATH=~/data/${src}-${tgt}/data-bin
 SAVEDIR=checkpoints_${ARCH}_${src}_${tgt}

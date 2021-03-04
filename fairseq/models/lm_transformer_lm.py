@@ -47,6 +47,13 @@ class LMTransformerLMModel(BaseFairseqModel):
         self.lm1=FairseqEncoder(args, lm)
         self.transformer=transformer.TransformerModel(args, encoder, decoder)
 
+    @staticmethod
+    def add_args(parser):
+	    # specific model arguments
+        parser.add_argument('--dropout',
+            help="Dropout probability",
+        )
+
     @classmethod
     def build_model(cls, args, task):
 	    cls_lm1, encoder_lm1=self.lm1.build_model(cls, args, task)
@@ -58,3 +65,4 @@ class LMTransformerLMModel(BaseFairseqModel):
 def base_architecture(args):
 		args.src_lm=getattr(args, "src_lm", None)
 		args.tgt_lm=getattr(args, "tgt_lm", None)
+		args.dropout=getattr(args, 'dropout', 0.1)
