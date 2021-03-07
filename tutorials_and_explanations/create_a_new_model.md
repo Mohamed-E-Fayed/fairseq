@@ -1,5 +1,22 @@
 ### Creating a new model
-first, you need to understand the hierarchy of files and directories in order to follow up this tutorial.
+first, you need to understand the hierarchy of files and directories in order to follow up this tutorial. So, please check files_hierarchy tutorial.
+
+## Creating a new model
+You will need either to create a new file for your model or add a class in one of the existing files.
+assume you want to create a file "my_model.py"
+Then, you will have to add:
+
+python3:
+class MyModelModel():
+    def __init__():
+        # initialization function
+
+    def add_args(parser):
+        # add specific model arguments
+		        # In other words,
+				        # the model inherits another model with pre specified arguments,, and you will need add more required by your model.
+
+
 
 Let's understand the hierarchy of files:
 

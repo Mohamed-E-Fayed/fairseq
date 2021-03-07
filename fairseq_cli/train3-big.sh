@@ -8,7 +8,7 @@ tgt=$2
 ARCH=lm_transformer_lm
 #ARCH=transformer
 MODELSIZE=transformer_big
-DATAPATH=~/data/${src}-${tgt}/data-bin
+DATAPATH=~/data/${src}-${tgt}
 SAVEDIR=checkpoints_${ARCH}_${src}_${tgt}
 
 mkdir -p $SAVEDIR
@@ -29,11 +29,11 @@ python3 train.py $DATAPATH    --cpu \
 --update-freq 4    --max-epoch 5  \
   --max-tokens 2048 --num-workers 8  --memory-efficient-fp16  --fp16-scale-tolerance=0.25  --min-loss-scale=1   \
 --skip-invalid-size-inputs-valid-test \
---decoder-layers  12 --encoder-layers  12 \
---encoder-embed-dim 1024 --decoder-embed-dim 1024 \
---encoder-ffn-embed-dim 4096  --encoder-ffn-embed-dim 4096 \
---encoder-attention-heads 16 --decoder-attention-heads 16 \
-  --share-decoder-input-output-embed \
+--model-decoder-layers  12 --model-encoder-layers  12 \
+--model-encoder-embed-dim 1024 --model-decoder-embed-dim 1024 \
+--model-encoder-ffn-embed-dim 4096  --model-encoder-ffn-embed-dim 4096 \
+--model-encoder-attention-heads 16 --model-decoder-attention-heads 16 \
+  --share-model-decoder-input-output-embed True \
   --eval-bleu \
 					    --eval-bleu-args '{"beam": 5, "max_len_a": 1.2, "max_len_b": 10}' \
 					        --eval-bleu-detok moses \

@@ -111,11 +111,11 @@ class LMTransformerLMModel(BaseFairseqModel):
     def build_main_model(cls, args, task):
         # This function should return the correct model regardless of it is transformer or not.
         #return transformer.TransformerModel.build_model(args, task)
-        encoder_embed_tokens=transformer.TransformerModel.build_embedding(args, task.source_dictionary, args.model_encoder_embed_dim, args.encoder_embed_path)
-        decoder_embed_tokens=transformer.TransformerModel.build_embedding(args, task.target_dictionary, args.model_decoder_embed_dim, args.decoder_embed_path)
-        enc=transformer.TransformerModel.build_encoder(args, task.source_dictionary, encoder_embed_tokens)
-        dec=transformer.TransformerModel.build_decoder(args, task.target_dictionary, decoder_embed_tokens)
-        return (enc, dec)
+	encoder_embed_tokens=transformer.TransformerModel.build_embedding(args, task.source_dictionary, args.encoder_embed_dim, args.encoder_embed_path)
+	decoder_embed_tokens=transformer.TransformerModel.build_embedding(args, task.target_dictionary, args.decoder_embed_dim, args.decoder_embed_path)
+	enc=transformer.TransformerModel.build_encoder(args, task.source_dictionary, encoder_embed_tokens)
+	dec=transformer.TransformerModel.build_decoder(args, task.target_dictionary, decoder_embed_tokens)
+	return (enc, dec)
 
     @classmethod
     def build_language_model(cls, args, task):
