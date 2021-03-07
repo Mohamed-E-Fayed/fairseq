@@ -52,8 +52,22 @@ class LMTransformerLMModel(BaseFairseqModel):
 
     @staticmethod
     def add_args(parser):
-            # specific model arguments
-        parser.add_argument('--dropout',
+        # specific model arguments
+        parser.add_argument("--lm1-name", type=str, metavar='N',
+                help="Name of language model no. 1.",)
+        parser.add_argument("--lm1-layers", type=int, metavar='N',
+                help="Number of layers of language model no. 1. It is converted into both --encoder-layers and --decoder-layers for language models only\n Then, the correct one is used by the corresponding model",)
+        parser.add_argument("--lm1-dropout",
+                help="probability dropout used in language model no. 1",)
+        parser.add_argument("--lm2-name", type=str, metavar='N',
+                help="Name of language model no. 2.",)
+        parser.add_argument("--lm2-layers", type=int, metavar='N',
+                help="Number of layers of language model no. 2. It is converted into both --encoder-layers and --decoder-layers for language models only\n Then, the correct one is used by the corresponding model",)
+        parser.add_argument("--lm2-dropout",
+                help="probability dropout used in language model no. 2",)
+        parser.add_argument("--tokens-per-sample", type=int, metavar='N',
+                help="number of tokens per sample. I do not understand its use yet",)
+        parser.add_argument('--model-dropout',
             help="Dropout probability",
         )
         parser.add_argument("--min-lr",
@@ -94,12 +108,6 @@ class LMTransformerLMModel(BaseFairseqModel):
 
     @classmethod
     def build_model(cls, args, task):
-        #transformer=transformer.TransformerModel(args, FairseqEncoder(args, lm), FairseqDecoder(args, lm))
-        #cls_lm1, encoder_lm1=FairseqEncoder(args, lm).build_model(cls, args, task)
-        #cls_lm1, encoder_lm1=cls.lm1.build_model(cls, args, task)
-        #cls_model, args_model, encoder_model, decoder_model= transformer.build_model(cls, args, task)
-        #cls_model, args_model, encoder_model, decoder_model= transformer.TransformerModel(args, FairseqEncoder(args, lm), FairseqDecoder(args, lm))
-        #cls_lm2, encoder_lm2=FairseqEncoder(args, lm).build_model(cls, args, task)
         lm1=cls.build_language_model(args, task)
         main_model=cls.build_main_model(args, task)
         main_model_enc, main_model_dec=main_model[0], main_model[1]
@@ -110,7 +118,9 @@ class LMTransformerLMModel(BaseFairseqModel):
     @classmethod
     def build_main_model(cls, args, task):
         # This function should return the correct model regardless of it is transformer or not.
+        # I am not sure whether it works properly or not
         #return transformer.TransformerModel.build_model(args, task)
+        args.encoder_embed_path=args.decoder_embed_path=None
         encoder_embed_tokens=transformer.TransformerModel.build_embedding(args, task.source_dictionary, args.model_encoder_embed_dim, args.encoder_embed_path)
         decoder_embed_tokens=transformer.TransformerModel.build_embedding(args, task.target_dictionary, args.model_decoder_embed_dim, args.decoder_embed_path)
         enc=transformer.TransformerModel.build_encoder(args, task.source_dictionary, encoder_embed_tokens)
@@ -119,10 +129,49 @@ class LMTransformerLMModel(BaseFairseqModel):
 
     @classmethod
     def build_language_model(cls, args, task):
-        return  transformer_lm.TransformerLanguageModel.build_model(args, task)
+        return roberta.model.RobertaModel.build_model(args, task)
+        #return  transformer_lm.TransformerLanguageModel.build_model(args, task)
 
 @register_model_architecture("lm_transformer_lm", "lm_transformer_lm")
 def base_architecture(args):
-    args.src_lm=getattr(args, "src_lm", None)
-    args.tgt_lm=getattr(args, "tgt_lm", None)
-    args.dropout=getattr(args, 'dropout', 0.1)
+    args.lm1_name=getattr(args, "lm1_name", None)
+    args.lm2_name=getattr(args, "lm2_name", None)
+    args.tokens_per_sample=args.model_encoder_embed_dim
+    args.lm1_dropout=getattr(args, 'lm1_dropout', 0.1)
+    args.lm2_dropout=getattr(args, 'lm2_dropout', 0.1)
+
+
+def get_main_model_arguments(args):
+    # The names we path in command line are different from what expected by each model,
+    # so, I made this function to add the correct arguments required by main model.
+    args.encoder_layers=args.model_encoder_layers
+    args.encoder_embed_dim=args.model_encoder_embed_dim
+    args.encoder_ffn_embed_dim=args.model_encoder_ffn_embed_dim
+    args.encoder_attention_heads=args.model_encoder_attention_heads
+        
+    args.decoder_layers=args.model_decoder_layers
+    args.decoder_embed_dim=args.model_decoder_embed_dim
+    args.decoder_ffn_embed_dim=args.model_decoder_ffn_embed_dim
+    args.decoder_attention_heads=args.model_decoder_attention_heads
+
+    args.share_decoder_input_output_embed=args.share_model_decoder_input_output_embed
+
+    args.dropout=args.model_dropout
+    
+
+def get_lm1_arguments(args):
+    # The names we path in command line are different from what expected by each model,
+    # so, I made this function to add the correct arguments required by Language Model no. 1
+    args.encoder_layers=args.lm1_layers
+    args.decoder_layers=args.lm1_layers
+    args.dropout=args.lm1_dropout
+
+
+def get_lm2_arguments(args):
+    # The names we path in command line are different from what expected by each model,
+    # so, I made this function to add the correct arguments required by Language Model no. 2
+    args.encoder_layers=args.lm2_layers
+    args.decoder_layers=args.lm2_layers
+    args.dropout=args.lm2_dropout
+
+
