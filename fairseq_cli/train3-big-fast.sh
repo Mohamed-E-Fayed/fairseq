@@ -7,7 +7,7 @@ src=$1
 tgt=$2
 ARCH=transformer_wmt_en_de_big_t2t
 MODELSIZE=transformer_big
-DATAPATH=/mnt/disk1/data/${src}-${tgt}/data-bin
+DATAPATH=~/data
 SAVEDIR=checkpoints_3_not_segmented_${src}_${tgt}
 
 mkdir -p $SAVEDIR
@@ -18,10 +18,10 @@ else
 warmup=""
 fi
 
-fairseq-train $DATAPATH   \
+python3 train.py $DATAPATH    --cpu \
   -a $ARCH --optimizer adam --lr 0.0005 -s $src -t $tgt \
 --adam-betas '(0.9,0.98)' --save-dir $SAVEDIR $warmup \
---dropout 0.3 --min-lr '1e-09' --lr-scheduler inverse_sqrt --weight-decay 0.0001 \
+--dropout 0.3 --lr-scheduler inverse_sqrt --weight-decay 0.0001 \
 --criterion label_smoothed_cross_entropy --max-update 15000000 --warmup-updates 4000 --warmup-init-lr '1e-07' \
 --clip-norm 0.1 --label-smoothing 0.1   \
 --update-freq 4    --max-epoch 5  \
